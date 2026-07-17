@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/iheat-survey/static/css/main.2ccd2c08.css",
+    "main.js": "/iheat-survey/static/js/main.dab0c2bc.js",
+    "static/js/453.7a9262e8.chunk.js": "/iheat-survey/static/js/453.7a9262e8.chunk.js",
+    "index.html": "/iheat-survey/index.html",
+    "main.2ccd2c08.css.map": "/iheat-survey/static/css/main.2ccd2c08.css.map",
+    "main.dab0c2bc.js.map": "/iheat-survey/static/js/main.dab0c2bc.js.map",
+    "453.7a9262e8.chunk.js.map": "/iheat-survey/static/js/453.7a9262e8.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2ccd2c08.css",
+    "static/js/main.dab0c2bc.js"
+  ]
+}
