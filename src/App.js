@@ -646,19 +646,32 @@ export default function App() {
     Object.values(responses).forEach(categoryData => {
       if (categoryData.consumed && categoryData.items.length > 0) {
         categoryData.items.forEach(item => {
+          
+          // 1. Fetch the exact food data from our new mapped database
+          const foodData = foodDatabase[item.food] || foodDatabase['default'];
+
           rowsToInsert.push({
             session_id: sessionId,
             food_group: categoryData.group,
             category: categoryData.category,
             food_item: item.food,
-            portion_size: item.portion
+            portion_size: item.portion,
+            // 2. Add the code to the database row
+            fndds_code: foodData.fndds_code 
           });
         });
       }
     });
 
     if (rowsToInsert.length === 0) {
-      rowsToInsert.push({ session_id: sessionId, food_group: 'None', category: 'None', food_item: 'None', portion_size: 'None' });
+      rowsToInsert.push({ 
+        session_id: sessionId, 
+        food_group: 'None', 
+        category: 'None', 
+        food_item: 'None', 
+        portion_size: 'None',
+        fndds_code: '00000000'
+      });
     }
 
     const { error } = await supabase
