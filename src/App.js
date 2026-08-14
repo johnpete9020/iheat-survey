@@ -485,6 +485,12 @@ const foodDatabase = {
   'default': { fndds_code: '00000000', nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 }, ghge: 2.0 }
 };
 
+const portionMultipliers = {
+  'small': 1,
+  'medium': 2.5,
+  'large': 4
+};
+
 // ... [KEEP YOUR EXISTING foodCategories AND imageMapping CONSTANTS HERE EXACTLY AS THEY WERE] ...
 const foodCategories = [
   { id: 'g1_fruits', group: 'Group 1', name: 'Fruits', options: ['Apple', 'Banana', 'Orange', 'Mango', 'Grapes'] },
