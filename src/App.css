@@ -276,15 +276,18 @@ body {
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
+  align-items: stretch;
 }
 
 .dashboard-card {
   flex: 1;
-  min-width: 250px;
+  min-width: 230px; /* Reduced slightly to fit 3 in a row on standard screens */
   padding: 25px;
   border-radius: 12px;
   text-align: left;
   border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
 }
 
 .health-card {
@@ -345,4 +348,14 @@ body {
   color: #15803d;
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+.nutrition-card {
+  background-color: #f8fafc;
+  border-top: 4px solid #8b5cf6; /* A nice purple border */
+  text-align: center; /* Centers the pie chart nicely */
+}
+
+.nutrition-card h3 {
+  text-align: left;
 }
