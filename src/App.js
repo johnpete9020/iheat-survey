@@ -639,25 +639,25 @@ const foodCategories = [
 ];
 
 const imageMapping = {
-  'Apple': 'apple.png', 'Banana': 'banana.png', 'Orange': 'orange.png', 'Mango': 'mango.png', 'Grapes': 'grapes.png',
-  'Spinach': 'spinach.png', 'Broccoli': 'broccoli.png', 'Carrot': 'carrot.png', 'Tomato': 'tomato.png', 'Bell pepper': 'bell_pepper.png',
-  'Brown rice': 'brown_rice.png', 'Oats': 'oats.png', 'Quinoa': 'quinoa.png', 'Barley': 'barley.png', 'Whole wheat': 'whole_wheat.png',
-  'Black beans': 'black_beans.png', 'Lentils': 'lentils.png', 'Chickpeas': 'chickpeas.png', 'Kidney beans': 'kidney_beans.png', 'Split peas': 'split_peas.png',
-  'Beef steak': 'beef_steak.png', 'Pork loin': 'pork_loin.png', 'Lamb chop': 'lamb_chop.png', 'Beef roast': 'beef_roast.png', 'Pork tenderloin': 'pork_tenderloin.png',
-  'Chicken breast': 'chicken_breast.png', 'Chicken thigh': 'chicken_thigh.png', 'Chicken drumstick': 'chicken_drumstick.png', 'Chicken wings': 'chicken_wings.png', 'Whole chicken': 'whole_chicken.png',
-  'Salt': 'salt.png', 'Black pepper': 'black_pepper.png', 'Garlic powder': 'garlic_powder.png', 'Onion powder': 'onion_powder.png', 'Paprika': 'paprika.png',
-  'Soy sauce': 'soy_sauce.png', 'Ketchup': 'ketchup.png', 'Mustard': 'mustard.png', 'Vinegar': 'vinegar.png', 'Hot sauce': 'hot_sauce.png',
-  'White sugar': 'white_sugar.png', 'Brown sugar': 'brown_sugar.png', 'Honey': 'honey.png', 'Maple syrup': 'maple_syrup.png', 'Corn syrup': 'corn-syrup.png',
-  'Cornstarch': 'cornstarch.png', 'Gelatin': 'gelatin.png', 'Pectin': 'pectin.png', 'Agar-agar': 'agar-agar.png', 'Modified food starch': 'mod_food_starch.png',
-  'Baking powder': 'baking_powder.png', 'Baking soda': 'baking_soda.png', 'Yeast': 'yeast.png', 'Cream of tartar': 'cream_of_tartar.png', "Ammonium bicarbonate (baker's ammonia)": 'ammonium_bicarbonate.png',
-  'Cheese': 'cheese.png', 'Plain yogurt': 'plain_yoghurt.png', 'Cottage cheese': 'cottage_cheese.png', 'Kefir': 'kefir.png', 'Sweetened condensed milk': 'sweet_condensed_milk.png',
-  'Traditional bread': 'traditional_bread.png', 'Plain crackers': 'plain_crackers.png', 'Salted popcorn': 'salted_popcorn.png', 'Pasta': 'pasta.png', 'Tortillas': 'tortillas.png',
-  'Canned vegetables': 'canned_vegetables.png', 'Canned fruits in syrup': 'canned_fruits.png', 'Pickles (American)': 'pickles.png', 'Tomato sauce/paste': 'tomato_sauce.png', 'Dried fruits with added sugar': 'dried_fruit.png',
-  'Canned tuna': 'canned_tuna.png', 'Canned salmon': 'canned_salmon.png', 'Salted fish': 'salted_fish.png', 'Smoked fish': 'smoked_fish.png', 'Cured ham': 'cured_ham.png',
-  'Coca-Cola® or Pepsi®': 'coca_cola.png', 'Mountain Dew®': 'mountain_dew.png', 'Sweetened iced tea': 'sweetened_ice_tea.png', 'Sports drinks': 'sports_drink.png', 'Sweetened fruit drinks/fruit punch': 'sweetened_fruit_drinks.png',
-  'Potato chips': 'potato_chips.png', 'Chocolate bars': 'chocolate_bars.png', 'Candy': 'gummy_bears_candy.png', 'Packaged cookies': 'packaged_cookies.png', 'Cheese-flavored crackers': 'cheese_cracker.png',
-  'Frozen pizza': 'frozen_pizza.png', 'Instant noodles (Ramen)': 'instant_noodles.png', 'Microwaveable frozen dinners': 'fronzen_dinners.png', 'Canned pasta meals': 'canned_pasta.png', 'Frozen macaroni and cheese': 'frozen_mac_and_cheese.png',
-  'Chicken nuggets': 'chicken_nuggets.png', 'Hot dogs': 'hot dogs.png', 'Chicken patties': 'chicken_patties.png', 'Fish sticks': 'fish_sticks.png', 'Deli meat slices': 'deli_meat_slices.png'
+  'Apple': 'apple.webp', 'Banana': 'banana.webp', 'Orange': 'orange.webp', 'Mango': 'mango.webp', 'Grapes': 'grapes.webp',
+  'Spinach': 'spinach.webp', 'Broccoli': 'broccoli.webp', 'Carrot': 'carrot.webp', 'Tomato': 'tomato.webp', 'Bell pepper': 'bell_pepper.webp',
+  'Brown rice': 'brown_rice.webp', 'Oats': 'oats.webp', 'Quinoa': 'quinoa.webp', 'Barley': 'barley.webp', 'Whole wheat': 'whole_wheat.webp',
+  'Black beans': 'black_beans.webp', 'Lentils': 'lentils.webp', 'Chickpeas': 'chickpeas.webp', 'Kidney beans': 'kidney_beans.webp', 'Split peas': 'split_peas.webp',
+  'Beef steak': 'beef_steak.webp', 'Pork loin': 'pork_loin.webp', 'Lamb chop': 'lamb_chop.webp', 'Beef roast': 'beef_roast.webp', 'Pork tenderloin': 'pork_tenderloin.webp',
+  'Chicken breast': 'chicken_breast.webp', 'Chicken thigh': 'chicken_thigh.webp', 'Chicken drumstick': 'chicken_drumstick.webp', 'Chicken wings': 'chicken_wings.webp', 'Whole chicken': 'whole_chicken.webp',
+  'Salt': 'salt.webp', 'Black pepper': 'black_pepper.webp', 'Garlic powder': 'garlic_powder.webp', 'Onion powder': 'onion_powder.webp', 'Paprika': 'paprika.webp',
+  'Soy sauce': 'soy_sauce.webp', 'Ketchup': 'ketchup.webp', 'Mustard': 'mustard.webp', 'Vinegar': 'vinegar.webp', 'Hot sauce': 'hot_sauce.webp',
+  'White sugar': 'white_sugar.webp', 'Brown sugar': 'brown_sugar.webp', 'Honey': 'honey.webp', 'Maple syrup': 'maple_syrup.webp', 'Corn syrup': 'corn-syrup.webp',
+  'Cornstarch': 'cornstarch.webp', 'Gelatin': 'gelatin.webp', 'Pectin': 'pectin.webp', 'Agar-agar': 'agar-agar.webp', 'Modified food starch': 'mod_food_starch.webp',
+  'Baking powder': 'baking_powder.webp', 'Baking soda': 'baking_soda.webp', 'Yeast': 'yeast.webp', 'Cream of tartar': 'cream_of_tartar.webp', "Ammonium bicarbonate (baker's ammonia)": 'ammonium_bicarbonate.webp',
+  'Cheese': 'cheese.webp', 'Plain yogurt': 'plain_yoghurt.webp', 'Cottage cheese': 'cottage_cheese.webp', 'Kefir': 'kefir.webp', 'Sweetened condensed milk': 'sweet_condensed_milk.webp',
+  'Traditional bread': 'traditional_bread.webp', 'Plain crackers': 'plain_crackers.webp', 'Salted popcorn': 'salted_popcorn.webp', 'Pasta': 'pasta.webp', 'Tortillas': 'tortillas.webp',
+  'Canned vegetables': 'canned_vegetables.webp', 'Canned fruits in syrup': 'canned_fruits.webp', 'Pickles (American)': 'pickles.webp', 'Tomato sauce/paste': 'tomato_sauce.webp', 'Dried fruits with added sugar': 'dried_fruit.webp',
+  'Canned tuna': 'canned_tuna.webp', 'Canned salmon': 'canned_salmon.webp', 'Salted fish': 'salted_fish.webp', 'Smoked fish': 'smoked_fish.webp', 'Cured ham': 'cured_ham.webp',
+  'Coca-Cola® or Pepsi®': 'coca_cola.webp', 'Mountain Dew®': 'mountain_dew.webp', 'Sweetened iced tea': 'sweetened_ice_tea.webp', 'Sports drinks': 'sports_drink.webp', 'Sweetened fruit drinks/fruit punch': 'sweetened_fruit_drinks.webp',
+  'Potato chips': 'potato_chips.webp', 'Chocolate bars': 'chocolate_bars.webp', 'Candy': 'gummy_bears_candy.webp', 'Packaged cookies': 'packaged_cookies.webp', 'Cheese-flavored crackers': 'cheese_cracker.webp',
+  'Frozen pizza': 'frozen_pizza.webp', 'Instant noodles (Ramen)': 'instant_noodles.webp', 'Microwaveable frozen dinners': 'fronzen_dinners.webp', 'Canned pasta meals': 'canned_pasta.webp', 'Frozen macaroni and cheese': 'frozen_mac_and_cheese.webp',
+  'Chicken nuggets': 'chicken_nuggets.webp', 'Hot dogs': 'hot dogs.webp', 'Chicken patties': 'chicken_patties.webp', 'Fish sticks': 'fish_sticks.webp', 'Deli meat slices': 'deli_meat_slices.webp'
 };
 
 const portionSizes = [
