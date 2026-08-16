@@ -1,488 +1,581 @@
 import React, { useState } from 'react';
 import { supabase } from './supabaseClient';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import './App.css';
 
-// --- NEW ROBUST DATABASE MAPPING ---
-// Add the rest of your 95 items here following this exact structure.
+// --- UPDATED DATABASE WITH MICRONUTRIENTS (FNDDS + SHARP) ---
 const foodDatabase = {
   'Apple': {
     fndds_code: '63101000',
-    nutrients: { protein: 0.26, carbs: 13.81, fat: 0.17, sugars: 10.39 },
-    ghge: 0.9 // Fruit and fruit products
+    nutrients: { protein: 0.17, carbs: 14.8, fat: 0.15, sugars: 12.08 },
+    micros: { iron: 0.03, calcium: 5.0, potassium: 104.0, vitC: 4.6 },
+    ghge: 0.9 // Apple, raw
   },
   'Banana': {
     fndds_code: '63107010',
-    nutrients: { protein: 1.09, carbs: 22.84, fat: 0.33, sugars: 12.23 },
-    ghge: 0.9 // Fruit and fruit products
+    nutrients: { protein: 0.74, carbs: 22.71, fat: 0.28, sugars: 15.8 },
+    micros: { iron: 0.0, calcium: 5.0, potassium: 326.0, vitC: 12.0 },
+    ghge: 0.9 // Banana, raw
   },
   'Orange': {
-    fndds_code: '63133010',
-    nutrients: { protein: 0.94, carbs: 11.75, fat: 0.12, sugars: 9.35 },
-    ghge: 0.9 // Fruit and fruit products
+    fndds_code: '61119010',
+    nutrients: { protein: 0.92, carbs: 11.78, fat: 0.14, sugars: 8.96 },
+    micros: { iron: 0.22, calcium: 42.0, potassium: 174.0, vitC: 56.2 },
+    ghge: 0.9 // Orange, raw
   },
   'Mango': {
-    fndds_code: '63127010',
+    fndds_code: '63129010',
     nutrients: { protein: 0.82, carbs: 14.98, fat: 0.38, sugars: 13.66 },
-    ghge: 0.9 // Fruit and fruit products
+    micros: { iron: 0.16, calcium: 11.0, potassium: 168.0, vitC: 36.4 },
+    ghge: 0.9 // Mango, raw
   },
   'Grapes': {
     fndds_code: '63123000',
     nutrients: { protein: 0.9, carbs: 19.4, fat: 0.2, sugars: 16.74 },
-    ghge: 0.9 // Fruit and fruit products
+    micros: { iron: 0.18, calcium: 10.0, potassium: 224.0, vitC: 3.2 },
+    ghge: 0.9 // Grapes, raw
   },
   'Spinach': {
     fndds_code: '72125100',
     nutrients: { protein: 2.85, carbs: 2.41, fat: 0.62, sugars: 0.42 },
-    ghge: 1.8 // Vegetable and vegetable products
+    micros: { iron: 1.26, calcium: 68.0, potassium: 582.0, vitC: 26.5 },
+    ghge: 1.8 // Spinach, raw
   },
   'Broccoli': {
     fndds_code: '72201100',
-    nutrients: { protein: 2.57, carbs: 6.27, fat: 0.34, sugars: 1.54 },
-    ghge: 1.8 // Vegetable and vegetable products
+    nutrients: { protein: 2.57, carbs: 6.27, fat: 0.34, sugars: 1.4 },
+    micros: { iron: 0.69, calcium: 46.0, potassium: 303.0, vitC: 91.3 },
+    ghge: 1.8 // Broccoli, raw
   },
   'Carrot': {
-    fndds_code: '73101010',
-    nutrients: { protein: 0.93, carbs: 9.58, fat: 0.24, sugars: 4.74 },
-    ghge: 1.8 // Vegetable and vegetable products
+    fndds_code: '27311110',
+    nutrients: { protein: 6.93, carbs: 13.46, fat: 5.15, sugars: 1.19 },
+    micros: { iron: 2.05, calcium: 17.0, potassium: 337.0, vitC: 25.1 },
+    ghge: 1.8 // Beef, potatoes, and vegetables including carrots, broccoli, and/or dark-green leafy; no sauce
   },
   'Tomato': {
-    fndds_code: '74201010',
-    nutrients: { protein: 0.88, carbs: 3.89, fat: 0.2, sugars: 2.63 },
-    ghge: 1.8 // Vegetable and vegetable products
+    fndds_code: '14670000',
+    nutrients: { protein: 7.17, carbs: 3.86, fat: 10.87, sugars: 2.32 },
+    micros: { iron: 0.43, calcium: 147.0, potassium: 133.0, vitC: 5.1 },
+    ghge: 1.8 // Mozzarella cheese, tomato, and basil, with oil and vinegar dressing
   },
   'Bell pepper': {
-    fndds_code: '75113000',
-    nutrients: { protein: 0.86, carbs: 4.64, fat: 0.17, sugars: 2.4 },
-    ghge: 1.8 // Vegetable and vegetable products
+    fndds_code: '75122100',
+    nutrients: { protein: 0.72, carbs: 4.78, fat: 0.11, sugars: 2.4 },
+    micros: { iron: 0.28, calcium: 8.0, potassium: 153.0, vitC: 78.4 },
+    ghge: 1.8 // Peppers, sweet, green, raw
   },
   'Brown rice': {
-    fndds_code: '56205010',
-    nutrients: { protein: 2.74, carbs: 25.58, fat: 0.97, sugars: 0.24 },
-    ghge: 3.9 // Grains and grain-based products
+    fndds_code: '56205011',
+    nutrients: { protein: 2.44, carbs: 25.76, fat: 1.11, sugars: 0.22 },
+    micros: { iron: 0.5, calcium: 3.0, potassium: 51.0, vitC: 0.0 },
+    ghge: 3.9 // Rice, brown, cooked, NS as to fat
   },
   'Oats': {
-    fndds_code: '57303000',
-    nutrients: { protein: 2.54, carbs: 11.5, fat: 1.4, sugars: 0.39 },
-    ghge: 3.9 // Grains and grain-based products
+    fndds_code: '11435100',
+    nutrients: { protein: 9.22, carbs: 20.02, fat: 3.67, sugars: 10.74 },
+    micros: { iron: 0.77, calcium: 98.0, potassium: 191.0, vitC: 0.5 },
+    ghge: 3.9 // Yogurt, Greek, with oats
   },
   'Quinoa': {
-    fndds_code: '56208000',
-    nutrients: { protein: 4.4, carbs: 21.3, fat: 1.92, sugars: 0.87 },
-    ghge: 3.9 // Grains and grain-based products
+    fndds_code: '56204000',
+    nutrients: { protein: 4.2, carbs: 20.22, fat: 5.42, sugars: 0.84 },
+    micros: { iron: 1.41, calcium: 16.0, potassium: 161.0, vitC: 0.0 },
+    ghge: 3.9 // Quinoa, NS as to fat
   },
   'Barley': {
-    fndds_code: '56200200',
-    nutrients: { protein: 2.26, carbs: 28.22, fat: 0.44, sugars: 0.28 },
-    ghge: 3.9 // Grains and grain-based products
+    fndds_code: '51801010',
+    nutrients: { protein: 10.67, carbs: 47.54, fat: 4.53, sugars: 5.73 },
+    micros: { iron: 3.51, calcium: 55.0, potassium: 172.0, vitC: 0.0 },
+    ghge: 3.9 // Bread, barley
   },
-  'Whole wheat berries': {
-    fndds_code: '50020120',
-    nutrients: { protein: 12.01, carbs: 74.31, fat: 1.99, sugars: 1.98 },
-    ghge: 3.9 // Grains and grain-based products
+  'Whole wheat': {
+    fndds_code: '51320500',
+    nutrients: { protein: 3.27, carbs: 4.63, fat: 3.2, sugars: 4.81 },
+    micros: { iron: 0.0, calcium: 123.0, potassium: 150.0, vitC: 0.0 },
+    ghge: 3.9 // Milk, whole
   },
   'Black beans': {
-    fndds_code: '41103000',
-    nutrients: { protein: 8.86, carbs: 23.71, fat: 0.54, sugars: 0.32 },
-    ghge: 2.1 // Legumes, nuts and oilseeds
+    fndds_code: '41101990',
+    nutrients: { protein: 8.23, carbs: 22.04, fat: 7.01, sugars: 0.3 },
+    micros: { iron: 2.19, calcium: 24.0, potassium: 337.0, vitC: 0.0 },
+    ghge: 2.1 // Black beans, NFS
   },
   'Lentils': {
-    fndds_code: '41108000',
-    nutrients: { protein: 9.02, carbs: 20.13, fat: 0.38, sugars: 1.8 },
-    ghge: 2.1 // Legumes, nuts and oilseeds
+    fndds_code: '41304970',
+    nutrients: { protein: 8.38, carbs: 18.71, fat: 6.86, sugars: 1.67 },
+    micros: { iron: 3.03, calcium: 17.0, potassium: 326.0, vitC: 1.4 },
+    ghge: 2.1 // Lentils, NFS
   },
   'Chickpeas': {
-    fndds_code: '41106000',
-    nutrients: { protein: 8.86, carbs: 27.42, fat: 2.59, sugars: 4.8 },
-    ghge: 2.1 // Legumes, nuts and oilseeds
+    fndds_code: '41301990',
+    nutrients: { protein: 8.23, carbs: 25.48, fat: 8.91, sugars: 4.46 },
+    micros: { iron: 2.65, calcium: 46.0, potassium: 271.0, vitC: 1.1 },
+    ghge: 2.1 // Chickpeas, NFS
   },
   'Kidney beans': {
-    fndds_code: '41104000',
-    nutrients: { protein: 8.67, carbs: 22.8, fat: 0.5, sugars: 0.32 },
-    ghge: 2.1 // Legumes, nuts and oilseeds
+    fndds_code: '25130000',
+    nutrients: { protein: 27.05, carbs: 0.0, fat: 4.61, sugars: 0.0 },
+    micros: { iron: 5.25, calcium: 14.0, potassium: 288.0, vitC: 4.1 },
+    ghge: 2.1 // Kidney
   },
   'Split peas': {
-    fndds_code: '41205020',
-    nutrients: { protein: 8.34, carbs: 21.1, fat: 0.39, sugars: 2.9 },
-    ghge: 2.1 // Legumes, nuts and oilseeds
+    fndds_code: '13121120',
+    nutrients: { protein: 2.42, carbs: 32.59, fat: 6.88, sugars: 24.17 },
+    micros: { iron: 0.28, calcium: 73.0, potassium: 260.0, vitC: 4.5 },
+    ghge: 2.1 // Banana split
   },
   'Beef steak': {
     fndds_code: '21101000',
-    nutrients: { protein: 27.3, carbs: 0.0, fat: 11.8, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    nutrients: { protein: 27.0, carbs: 0.0, fat: 12.88, sugars: 0.0 },
+    micros: { iron: 2.37, calcium: 10.0, potassium: 371.0, vitC: 0.0 },
+    ghge: 17.1 // Beef, steak, NFS
   },
   'Pork loin': {
-    fndds_code: '22101300',
-    nutrients: { protein: 27.05, carbs: 0.0, fat: 7.91, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '22000100',
+    nutrients: { protein: 27.14, carbs: 0.0, fat: 8.67, sugars: 0.0 },
+    micros: { iron: 1.05, calcium: 21.0, potassium: 422.0, vitC: 0.0 },
+    ghge: 17.1 // Pork, NFS
   },
   'Lamb chop': {
-    fndds_code: '23101100',
-    nutrients: { protein: 24.3, carbs: 0.0, fat: 12.87, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '23000100',
+    nutrients: { protein: 24.32, carbs: 0.0, fat: 20.77, sugars: 0.0 },
+    micros: { iron: 2.05, calcium: 20.0, potassium: 300.0, vitC: 0.0 },
+    ghge: 17.1 // Lamb, NS as to cut
   },
   'Beef roast': {
-    fndds_code: '21201000',
-    nutrients: { protein: 26.54, carbs: 0.0, fat: 10.36, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '21000100',
+    nutrients: { protein: 27.13, carbs: 0.0, fat: 13.04, sugars: 0.0 },
+    micros: { iron: 2.76, calcium: 8.0, potassium: 341.0, vitC: 0.0 },
+    ghge: 17.1 // Beef, NFS
   },
   'Pork tenderloin': {
-    fndds_code: '22101370',
-    nutrients: { protein: 26.24, carbs: 0.0, fat: 3.51, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '22000100',
+    nutrients: { protein: 27.14, carbs: 0.0, fat: 8.67, sugars: 0.0 },
+    micros: { iron: 1.05, calcium: 21.0, potassium: 422.0, vitC: 0.0 },
+    ghge: 17.1 // Pork, NFS
   },
   'Chicken breast': {
-    fndds_code: '24122110',
-    nutrients: { protein: 32.06, carbs: 0.0, fat: 3.57, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '24122140',
+    nutrients: { protein: 26.37, carbs: 0.09, fat: 7.67, sugars: 0.09 },
+    micros: { iron: 1.12, calcium: 14.0, potassium: 251.0, vitC: 0.0 },
+    ghge: 17.1 // Chicken breast, baked or broiled, skin eaten, from pre-cooked
   },
   'Chicken thigh': {
-    fndds_code: '24124110',
-    nutrients: { protein: 25.86, carbs: 0.0, fat: 10.15, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '24152240',
+    nutrients: { protein: 22.51, carbs: 0.12, fat: 15.08, sugars: 0.12 },
+    micros: { iron: 1.25, calcium: 13.0, potassium: 218.0, vitC: 0.0 },
+    ghge: 17.1 // Chicken thigh, baked or broiled, skin eaten, from pre-cooked
   },
   'Chicken drumstick': {
-    fndds_code: '24123110',
-    nutrients: { protein: 27.27, carbs: 0.0, fat: 6.96, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '24142310',
+    nutrients: { protein: 25.65, carbs: 0.12, fat: 11.46, sugars: 0.12 },
+    micros: { iron: 1.21, calcium: 15.0, potassium: 257.0, vitC: 0.0 },
+    ghge: 17.1 // Chicken drumstick, baked or broiled, skin eaten, from pre-cooked
   },
   'Chicken wings': {
-    fndds_code: '24121110',
-    nutrients: { protein: 23.82, carbs: 0.0, fat: 19.46, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '24162140',
+    nutrients: { protein: 23.42, carbs: 0.6, fat: 18.04, sugars: 0.6 },
+    micros: { iron: 1.15, calcium: 15.0, potassium: 198.0, vitC: 0.0 },
+    ghge: 17.1 // Chicken wing, baked or broiled, from pre-cooked
   },
   'Whole chicken': {
-    fndds_code: '24111110',
-    nutrients: { protein: 27.07, carbs: 0.0, fat: 13.62, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '11111000',
+    nutrients: { protein: 3.27, carbs: 4.63, fat: 3.2, sugars: 4.81 },
+    micros: { iron: 0.0, calcium: 123.0, potassium: 150.0, vitC: 0.0 },
+    ghge: 17.1 // Milk, whole
   },
   'Salt': {
-    fndds_code: '11111111',
-    nutrients: { protein: 0.0, carbs: 0.0, fat: 0.0, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '14203020',
+    nutrients: { protein: 10.24, carbs: 6.59, fat: 0.29, sugars: 1.83 },
+    micros: { iron: 0.16, calcium: 71.0, potassium: 85.0, vitC: 0.0 },
+    ghge: 2.2 // Cheese, cottage, salted, dry curd
   },
   'Black pepper': {
-    fndds_code: '22222222',
-    nutrients: { protein: 10.39, carbs: 63.95, fat: 3.26, sugars: 0.64 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '41101990',
+    nutrients: { protein: 8.23, carbs: 22.04, fat: 7.01, sugars: 0.3 },
+    micros: { iron: 2.19, calcium: 24.0, potassium: 337.0, vitC: 0.0 },
+    ghge: 2.2 // Black beans, NFS
   },
   'Garlic powder': {
-    fndds_code: '33333333',
-    nutrients: { protein: 16.55, carbs: 72.73, fat: 0.73, sugars: 2.43 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '27151050',
+    nutrients: { protein: 11.56, carbs: 2.45, fat: 24.96, sugars: 0.47 },
+    micros: { iron: 1.34, calcium: 40.0, potassium: 167.0, vitC: 2.8 },
+    ghge: 2.2 // Shrimp in garlic sauce, Puerto Rican style
   },
   'Onion powder': {
-    fndds_code: '44444444',
-    nutrients: { protein: 10.41, carbs: 79.12, fat: 1.04, sugars: 9.38 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '11440030',
+    nutrients: { protein: 6.82, carbs: 4.06, fat: 12.91, sugars: 3.38 },
+    micros: { iron: 0.14, calcium: 129.0, potassium: 181.0, vitC: 0.2 },
+    ghge: 2.2 // Onion dip, yogurt based
   },
   'Paprika': {
-    fndds_code: '55555555',
-    nutrients: { protein: 14.14, carbs: 53.99, fat: 12.89, sugars: 10.34 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 2.2 // Fallback
   },
   'Soy sauce': {
-    fndds_code: '42202000',
+    fndds_code: '41420300',
     nutrients: { protein: 8.14, carbs: 4.93, fat: 0.57, sugars: 0.4 },
-    ghge: 2.2 // Miscellaneous
+    micros: { iron: 2.38, calcium: 33.0, potassium: 435.0, vitC: 0.0 },
+    ghge: 2.2 // Soy sauce
   },
   'Ketchup': {
     fndds_code: '74401010',
-    nutrients: { protein: 1.25, carbs: 28.51, fat: 0.17, sugars: 22.9 },
-    ghge: 2.2 // Miscellaneous
+    nutrients: { protein: 1.08, carbs: 27.1, fat: 0.32, sugars: 21.54 },
+    micros: { iron: 0.41, calcium: 16.0, potassium: 301.0, vitC: 4.0 },
+    ghge: 2.2 // Ketchup
   },
   'Mustard': {
-    fndds_code: '75119030',
-    nutrients: { protein: 3.82, carbs: 6.01, fat: 2.92, sugars: 0.86 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '72122100',
+    nutrients: { protein: 2.86, carbs: 4.67, fat: 0.42, sugars: 1.32 },
+    micros: { iron: 1.46, calcium: 115.0, potassium: 384.0, vitC: 70.0 },
+    ghge: 2.2 // Mustard greens, raw
   },
   'Vinegar': {
-    fndds_code: '82103000',
-    nutrients: { protein: 0.0, carbs: 0.93, fat: 0.0, sugars: 0.4 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '14670000',
+    nutrients: { protein: 7.17, carbs: 3.86, fat: 10.87, sugars: 2.32 },
+    micros: { iron: 0.43, calcium: 147.0, potassium: 133.0, vitC: 5.1 },
+    ghge: 2.2 // Mozzarella cheese, tomato, and basil, with oil and vinegar dressing
   },
   'Hot sauce': {
-    fndds_code: '75114000',
-    nutrients: { protein: 1.08, carbs: 2.58, fat: 0.4, sugars: 1.13 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '75511010',
+    nutrients: { protein: 1.29, carbs: 0.8, fat: 0.76, sugars: 0.13 },
+    micros: { iron: 0.28, calcium: 21.0, potassium: 202.0, vitC: 72.8 },
+    ghge: 2.2 // Hot pepper sauce
   },
   'White sugar': {
-    fndds_code: '91101010',
-    nutrients: { protein: 0.0, carbs: 99.98, fat: 0.0, sugars: 99.8 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '13411000',
+    nutrients: { protein: 3.84, carbs: 9.21, fat: 10.2, sugars: 4.63 },
+    micros: { iron: 0.11, calcium: 137.0, potassium: 153.0, vitC: 0.4 },
+    ghge: 2.6 // White sauce or gravy
   },
   'Brown sugar': {
-    fndds_code: '91101020',
-    nutrients: { protein: 0.12, carbs: 98.09, fat: 0.0, sugars: 97.02 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '52401000',
+    nutrients: { protein: 10.67, carbs: 47.54, fat: 4.53, sugars: 5.73 },
+    micros: { iron: 3.51, calcium: 55.0, potassium: 172.0, vitC: 0.0 },
+    ghge: 2.6 // Bread, Boston Brown
   },
   'Honey': {
-    fndds_code: '91200010',
+    fndds_code: '91302010',
     nutrients: { protein: 0.3, carbs: 82.4, fat: 0.0, sugars: 82.12 },
-    ghge: 2.6 // Sugar and confectionary
+    micros: { iron: 0.42, calcium: 6.0, potassium: 52.0, vitC: 0.5 },
+    ghge: 2.6 // Honey
   },
   'Maple syrup': {
-    fndds_code: '91301010',
-    nutrients: { protein: 0.04, carbs: 67.04, fat: 0.06, sugars: 60.44 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '56203130',
+    nutrients: { protein: 2.44, carbs: 20.23, fat: 1.25, sugars: 7.99 },
+    micros: { iron: 2.62, calcium: 88.0, potassium: 135.0, vitC: 0.0 },
+    ghge: 2.6 // Oatmeal, instant, maple flavored, no added fat
   },
   'Corn syrup': {
-    fndds_code: '91302000',
-    nutrients: { protein: 0.0, carbs: 77.2, fat: 0.0, sugars: 11.2 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '21416000',
+    nutrients: { protein: 18.17, carbs: 0.47, fat: 18.98, sugars: 0.0 },
+    micros: { iron: 2.2, calcium: 15.0, potassium: 147.0, vitC: 13.9 },
+    ghge: 2.6 // Beef, corned
   },
   'Cornstarch': {
-    fndds_code: '58120010',
-    nutrients: { protein: 0.26, carbs: 91.27, fat: 0.05, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 2.2 // Fallback
   },
   'Gelatin': {
-    fndds_code: '92110200',
-    nutrients: { protein: 85.6, carbs: 0.0, fat: 0.1, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '14610200',
+    nutrients: { protein: 6.82, carbs: 9.03, fat: 2.27, sugars: 7.66 },
+    micros: { iron: 0.1, calcium: 48.0, potassium: 59.0, vitC: 0.3 },
+    ghge: 2.2 // Cheese, cottage cheese, with gelatin dessert
   },
   'Pectin': {
-    fndds_code: '58130000',
-    nutrients: { protein: 0.3, carbs: 89.6, fat: 0.0, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 2.2 // Fallback
   },
   'Agar-agar': {
-    fndds_code: '58130010',
-    nutrients: { protein: 6.21, carbs: 80.88, fat: 0.3, sugars: 2.76 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 2.2 // Fallback
   },
   'Modified food starch': {
-    fndds_code: '58120020',
-    nutrients: { protein: 0.26, carbs: 91.27, fat: 0.05, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 2.2 // Fallback
   },
   'Baking powder': {
-    fndds_code: '11111112',
-    nutrients: { protein: 0.0, carbs: 27.7, fat: 0.0, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 2.2 // Fallback
   },
   'Baking soda': {
-    fndds_code: '11111113',
-    nutrients: { protein: 0.0, carbs: 0.0, fat: 0.0, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 2.2 // Fallback
   },
   'Yeast': {
-    fndds_code: '11111114',
-    nutrients: { protein: 40.44, carbs: 41.22, fat: 7.61, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '51165000',
+    nutrients: { protein: 6.2, carbs: 50.9, fat: 16.4, sugars: 31.73 },
+    micros: { iron: 1.5, calcium: 111.0, potassium: 113.0, vitC: 0.0 },
+    ghge: 2.2 // Coffee cake, yeast type
   },
   'Cream of tartar': {
-    fndds_code: '11111115',
-    nutrients: { protein: 0.0, carbs: 61.5, fat: 0.0, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '11512100',
+    nutrients: { protein: 2.7, carbs: 16.25, fat: 2.8, sugars: 14.92 },
+    micros: { iron: 0.0, calcium: 101.0, potassium: 150.0, vitC: 0.2 },
+    ghge: 2.2 // Hot chocolate / cocoa, with whipped cream
   },
   "Ammonium bicarbonate (baker's ammonia)": {
-    fndds_code: '11111113',
-    nutrients: { protein: 0.0, carbs: 0.0, fat: 0.0, sugars: 0.0 },
-    ghge: 2.2 // Miscellaneous
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 2.2 // Fallback
   },
   'Cheese': {
-    fndds_code: '14104010',
-    nutrients: { protein: 22.87, carbs: 1.4, fat: 33.31, sugars: 0.3 },
-    ghge: 11.5 // Milk and dairy products
+    fndds_code: '14104100',
+    nutrients: { protein: 23.3, carbs: 2.44, fat: 34.0, sugars: 0.33 },
+    micros: { iron: 0.16, calcium: 707.0, potassium: 77.0, vitC: 0.0 },
+    ghge: 11.5 // Cheese, Cheddar
   },
   'Plain yogurt': {
-    fndds_code: '11400010',
-    nutrients: { protein: 10.3, carbs: 3.59, fat: 0.39, sugars: 3.24 },
-    ghge: 11.5 // Milk and dairy products
+    fndds_code: '11480010',
+    nutrients: { protein: 3.82, carbs: 5.57, fat: 4.48, sugars: 4.09 },
+    micros: { iron: 0.04, calcium: 133.0, potassium: 172.0, vitC: 0.5 },
+    ghge: 11.5 // Baby Toddler yogurt, plain
   },
   'Cottage cheese': {
-    fndds_code: '14101010',
-    nutrients: { protein: 11.12, carbs: 3.38, fat: 4.3, sugars: 2.67 },
-    ghge: 11.5 // Milk and dairy products
+    fndds_code: '14200100',
+    nutrients: { protein: 11.0, carbs: 4.31, fat: 2.3, sugars: 4.1 },
+    micros: { iron: 0.07, calcium: 87.0, potassium: 99.0, vitC: 0.0 },
+    ghge: 11.5 // Cheese, cottage, NFS
   },
   'Kefir': {
-    fndds_code: '11400100',
-    nutrients: { protein: 3.79, carbs: 4.88, fat: 1.15, sugars: 4.54 },
-    ghge: 11.5 // Milk and dairy products
+    fndds_code: '11115400',
+    nutrients: { protein: 3.59, carbs: 7.48, fat: 0.96, sugars: 6.91 },
+    micros: { iron: 0.02, calcium: 122.0, potassium: 177.0, vitC: 0.0 },
+    ghge: 11.5 // Kefir
   },
   'Sweetened condensed milk': {
     fndds_code: '11220000',
-    nutrients: { protein: 7.91, carbs: 54.4, fat: 8.71, sugars: 54.4 },
-    ghge: 11.5 // Milk and dairy products
+    nutrients: { protein: 7.91, carbs: 54.4, fat: 8.7, sugars: 54.4 },
+    micros: { iron: 0.2, calcium: 284.0, potassium: 371.0, vitC: 1.0 },
+    ghge: 11.5 // Milk, condensed, sweetened
   },
   'Traditional bread': {
     fndds_code: '51101000',
-    nutrients: { protein: 9.38, carbs: 48.74, fat: 3.44, sugars: 5.56 },
-    ghge: 3.9 // Grains and grain-based products
+    nutrients: { protein: 9.43, carbs: 49.2, fat: 3.59, sugars: 5.34 },
+    micros: { iron: 3.59, calcium: 142.0, potassium: 123.0, vitC: 0.0 },
+    ghge: 3.9 // Bread, white
   },
   'Plain crackers': {
-    fndds_code: '54201010',
-    nutrients: { protein: 9.45, carbs: 70.93, fat: 8.32, sugars: 1.25 },
-    ghge: 3.9 // Grains and grain-based products
+    fndds_code: '11411010',
+    nutrients: { protein: 5.25, carbs: 7.04, fat: 1.55, sugars: 7.04 },
+    micros: { iron: 0.08, calcium: 183.0, potassium: 234.0, vitC: 0.7 },
+    ghge: 3.9 // Yogurt, NS as to type of milk, plain
   },
   'Salted popcorn': {
-    fndds_code: '54401060',
-    nutrients: { protein: 12.0, carbs: 77.9, fat: 4.19, sugars: 0.87 },
-    ghge: 3.9 // Grains and grain-based products
+    fndds_code: '54403010',
+    nutrients: { protein: 12.89, carbs: 77.47, fat: 4.52, sugars: 0.87 },
+    micros: { iron: 3.19, calcium: 11.0, potassium: 329.0, vitC: 0.0 },
+    ghge: 3.9 // Popcorn, air-popped, no butter added
   },
   'Pasta': {
-    fndds_code: '56111000',
-    nutrients: { protein: 5.8, carbs: 30.86, fat: 0.93, sugars: 0.56 },
-    ghge: 3.9 // Grains and grain-based products
+    fndds_code: '56130000',
+    nutrients: { protein: 5.76, carbs: 30.68, fat: 0.92, sugars: 0.56 },
+    micros: { iron: 1.28, calcium: 7.0, potassium: 44.0, vitC: 0.0 },
+    ghge: 3.9 // Pasta, cooked
   },
   'Tortillas': {
-    fndds_code: '52207000',
-    nutrients: { protein: 4.84, carbs: 43.18, fat: 2.14, sugars: 0.77 },
-    ghge: 3.9 // Grains and grain-based products
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 3.9 // Fallback
   },
   'Canned vegetables': {
-    fndds_code: '73414010',
-    nutrients: { protein: 2.1, carbs: 8.01, fat: 0.14, sugars: 3.01 },
-    ghge: 1.3 // Avg fruit/veg
+    fndds_code: '22311500',
+    nutrients: { protein: 20.94, carbs: 0.49, fat: 8.43, sugars: 0.0 },
+    micros: { iron: 0.91, calcium: 6.0, potassium: 247.0, vitC: 0.0 },
+    ghge: 1.3 // Ham, canned
   },
   'Canned fruits in syrup': {
-    fndds_code: '63301010',
-    nutrients: { protein: 0.35, carbs: 18.52, fat: 0.08, sugars: 15.6 },
-    ghge: 1.3 // Avg fruit/veg
+    fndds_code: '22311500',
+    nutrients: { protein: 20.94, carbs: 0.49, fat: 8.43, sugars: 0.0 },
+    micros: { iron: 0.91, calcium: 6.0, potassium: 247.0, vitC: 0.0 },
+    ghge: 1.3 // Ham, canned
   },
   'Pickles (American)': {
-    fndds_code: '75121000',
-    nutrients: { protein: 0.33, carbs: 2.05, fat: 0.17, sugars: 1.06 },
-    ghge: 1.3 // Avg fruit/veg
+    fndds_code: '75503010',
+    nutrients: { protein: 0.48, carbs: 1.99, fat: 0.43, sugars: 1.28 },
+    micros: { iron: 0.38, calcium: 54.0, potassium: 24.0, vitC: 1.0 },
+    ghge: 1.3 // Pickles, dill
   },
   'Tomato sauce/paste': {
-    fndds_code: '74402010',
-    nutrients: { protein: 1.76, carbs: 6.91, fat: 0.35, sugars: 4.09 },
-    ghge: 1.3 // Avg fruit/veg
+    fndds_code: '58131523',
+    nutrients: { protein: 2.48, carbs: 13.64, fat: 1.45, sugars: 3.72 },
+    micros: { iron: 1.05, calcium: 21.0, potassium: 216.0, vitC: 0.3 },
+    ghge: 1.3 // Ravioli, cheese-filled, with tomato sauce, canned
   },
   'Dried fruits with added sugar': {
-    fndds_code: '63111020',
-    nutrients: { protein: 0.17, carbs: 82.8, fat: 1.09, sugars: 72.56 },
-    ghge: 1.3 // Avg fruit/veg
+    fndds_code: '21602000',
+    nutrients: { protein: 31.1, carbs: 2.76, fat: 1.94, sugars: 2.7 },
+    micros: { iron: 3.96, calcium: 15.0, potassium: 457.0, vitC: 19.3 },
+    ghge: 1.3 // Beef, dried, chipped, uncooked
   },
   'Canned tuna': {
-    fndds_code: '26100140',
-    nutrients: { protein: 19.33, carbs: 0.0, fat: 0.81, sugars: 0.0 },
-    ghge: 16.1 // Avg Meat/Fish
+    fndds_code: '22311500',
+    nutrients: { protein: 20.94, carbs: 0.49, fat: 8.43, sugars: 0.0 },
+    micros: { iron: 0.91, calcium: 6.0, potassium: 247.0, vitC: 0.0 },
+    ghge: 16.1 // Ham, canned
   },
   'Canned salmon': {
-    fndds_code: '26100100',
-    nutrients: { protein: 19.5, carbs: 0.0, fat: 6.01, sugars: 0.0 },
-    ghge: 16.1 // Avg Meat/Fish
+    fndds_code: '22311500',
+    nutrients: { protein: 20.94, carbs: 0.49, fat: 8.43, sugars: 0.0 },
+    micros: { iron: 0.91, calcium: 6.0, potassium: 247.0, vitC: 0.0 },
+    ghge: 16.1 // Ham, canned
   },
   'Salted fish': {
-    fndds_code: '26100230',
-    nutrients: { protein: 62.82, carbs: 0.0, fat: 2.37, sugars: 0.0 },
-    ghge: 16.1 // Avg Meat/Fish
+    fndds_code: '14203020',
+    nutrients: { protein: 10.24, carbs: 6.59, fat: 0.29, sugars: 1.83 },
+    micros: { iron: 0.16, calcium: 71.0, potassium: 85.0, vitC: 0.0 },
+    ghge: 16.1 // Cheese, cottage, salted, dry curd
   },
   'Smoked fish': {
-    fndds_code: '26100220',
+    fndds_code: '26137190',
     nutrients: { protein: 18.28, carbs: 0.0, fat: 4.32, sugars: 0.0 },
-    ghge: 16.1 // Avg Meat/Fish
+    micros: { iron: 0.85, calcium: 11.0, potassium: 175.0, vitC: 0.0 },
+    ghge: 16.1 // Fish, salmon, smoked
   },
   'Cured ham': {
-    fndds_code: '22601000',
-    nutrients: { protein: 16.59, carbs: 1.5, fat: 5.51, sugars: 0.0 },
-    ghge: 16.1 // Avg Meat/Fish
+    fndds_code: '22600200',
+    nutrients: { protein: 37.41, carbs: 1.9, fat: 35.8, sugars: 1.57 },
+    micros: { iron: 1.63, calcium: 15.0, potassium: 565.0, vitC: 0.0 },
+    ghge: 16.1 // Pork bacon, NS as to fresh, smoked or cured, cooked
   },
   'Coca-Cola® or Pepsi®': {
-    fndds_code: '92410310',
-    nutrients: { protein: 0.0, carbs: 10.5, fat: 0.0, sugars: 10.36 },
-    ghge: 0.4 // Water and water-based beverages
+    fndds_code: '00000000',
+    nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 },
+    micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 },
+    ghge: 0.4 // Fallback
   },
   'Mountain Dew®': {
-    fndds_code: '92410320',
-    nutrients: { protein: 0.0, carbs: 12.35, fat: 0.0, sugars: 12.33 },
-    ghge: 0.4 // Water and water-based beverages
+    fndds_code: '95310500',
+    nutrients: { protein: 0.25, carbs: 12.08, fat: 0.08, sugars: 12.08 },
+    micros: { iron: 0.02, calcium: 13.0, potassium: 5.0, vitC: 0.0 },
+    ghge: 0.4 // Energy drink (Mountain Dew AMP)
   },
   'Sweetened iced tea': {
-    fndds_code: '92302000',
-    nutrients: { protein: 0.0, carbs: 8.44, fat: 0.0, sugars: 8.24 },
-    ghge: 0.4 // Water and water-based beverages
+    fndds_code: '11220000',
+    nutrients: { protein: 7.91, carbs: 54.4, fat: 8.7, sugars: 54.4 },
+    micros: { iron: 0.2, calcium: 284.0, potassium: 371.0, vitC: 1.0 },
+    ghge: 0.4 // Milk, condensed, sweetened
   },
   'Sports drinks': {
-    fndds_code: '92410330',
-    nutrients: { protein: 0.0, carbs: 5.86, fat: 0.0, sugars: 5.48 },
-    ghge: 0.4 // Water and water-based beverages
+    fndds_code: '92900300',
+    nutrients: { protein: 0.0, carbs: 97.9, fat: 1.01, sugars: 97.15 },
+    micros: { iron: 0.11, calcium: 15.0, potassium: 139.0, vitC: 1.9 },
+    ghge: 0.4 // Sports drink, dry concentrate, not reconstituted
   },
   'Sweetened fruit drinks/fruit punch': {
-    fndds_code: '92511010',
-    nutrients: { protein: 0.0, carbs: 10.05, fat: 0.0, sugars: 10.02 },
-    ghge: 0.4 // Water and water-based beverages
+    fndds_code: '11220000',
+    nutrients: { protein: 7.91, carbs: 54.4, fat: 8.7, sugars: 54.4 },
+    micros: { iron: 0.2, calcium: 284.0, potassium: 371.0, vitC: 1.0 },
+    ghge: 0.4 // Milk, condensed, sweetened
   },
   'Potato chips': {
-    fndds_code: '77121010',
-    nutrients: { protein: 6.56, carbs: 52.88, fat: 34.6, sugars: 0.28 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '27211000',
+    nutrients: { protein: 7.92, carbs: 14.52, fat: 4.93, sugars: 0.65 },
+    micros: { iron: 1.34, calcium: 11.0, potassium: 457.0, vitC: 14.5 },
+    ghge: 2.6 // Beef and potatoes, no sauce
   },
   'Chocolate bars': {
-    fndds_code: '91705010',
-    nutrients: { protein: 7.72, carbs: 59.39, fat: 29.83, sugars: 51.52 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '11321000',
+    nutrients: { protein: 3.35, carbs: 8.32, fat: 2.03, sugars: 7.49 },
+    micros: { iron: 0.48, calcium: 116.0, potassium: 156.0, vitC: 0.1 },
+    ghge: 2.6 // Soy milk, chocolate
   },
   'Candy': {
-    fndds_code: '91501030',
-    nutrients: { protein: 6.9, carbs: 76.5, fat: 0.2, sugars: 46.12 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '13120110',
+    nutrients: { protein: 4.4, carbs: 30.9, fat: 20.2, sugars: 30.0 },
+    micros: { iron: 0.81, calcium: 120.0, potassium: 251.0, vitC: 0.4 },
+    ghge: 2.6 // Ice cream candy bar
   },
   'Packaged cookies': {
-    fndds_code: '53201000',
-    nutrients: { protein: 4.88, carbs: 67.24, fat: 23.36, sugars: 34.54 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '13120790',
+    nutrients: { protein: 5.21, carbs: 34.38, fat: 21.88, sugars: 25.0 },
+    micros: { iron: 0.52, calcium: 104.0, potassium: 167.0, vitC: 0.0 },
+    ghge: 2.6 // Ice cream cone, vanilla, prepackaged
   },
   'Cheese-flavored crackers': {
-    fndds_code: '54203000',
-    nutrients: { protein: 10.59, carbs: 59.95, fat: 20.35, sugars: 0.5 },
-    ghge: 2.6 // Sugar and confectionary
+    fndds_code: '54304000',
+    nutrients: { protein: 10.93, carbs: 59.42, fat: 22.74, sugars: 4.53 },
+    micros: { iron: 3.42, calcium: 99.0, potassium: 181.0, vitC: 0.0 },
+    ghge: 2.6 // Crackers, cheese
   },
   'Frozen pizza': {
-    fndds_code: '58106220',
-    nutrients: { protein: 11.39, carbs: 33.15, fat: 12.33, sugars: 3.58 },
-    ghge: 4.8 // Composite dishes
+    fndds_code: '11459990',
+    nutrients: { protein: 3.0, carbs: 21.6, fat: 3.6, sugars: 19.92 },
+    micros: { iron: 0.14, calcium: 106.0, potassium: 156.0, vitC: 0.5 },
+    ghge: 4.8 // Frozen yogurt, NFS
   },
   'Instant noodles (Ramen)': {
-    fndds_code: '28340640',
-    nutrients: { protein: 1.83, carbs: 10.51, fat: 2.87, sugars: 0.54 },
-    ghge: 4.8 // Composite dishes
+    fndds_code: '58407030',
+    nutrients: { protein: 1.53, carbs: 9.04, fat: 2.64, sugars: 0.3 },
+    micros: { iron: 0.43, calcium: 8.0, potassium: 26.0, vitC: 0.0 },
+    ghge: 4.8 // Soup, ramen noodles, water added
   },
   'Microwaveable frozen dinners': {
-    fndds_code: '27211110',
-    nutrients: { protein: 6.78, carbs: 8.84, fat: 5.76, sugars: 0.44 },
-    ghge: 4.8 // Composite dishes
+    fndds_code: '28110300',
+    nutrients: { protein: 6.82, carbs: 10.94, fat: 8.4, sugars: 1.35 },
+    micros: { iron: 0.77, calcium: 17.0, potassium: 228.0, vitC: 1.7 },
+    ghge: 4.8 // Salisbury steak dinner, NFS, frozen meal
   },
   'Canned pasta meals': {
-    fndds_code: '27430300',
-    nutrients: { protein: 2.2, carbs: 11.2, fat: 0.72, sugars: 2.0 },
-    ghge: 4.8 // Composite dishes
+    fndds_code: '22311500',
+    nutrients: { protein: 20.94, carbs: 0.49, fat: 8.43, sugars: 0.0 },
+    micros: { iron: 0.91, calcium: 6.0, potassium: 247.0, vitC: 0.0 },
+    ghge: 4.8 // Ham, canned
   },
   'Frozen macaroni and cheese': {
-    fndds_code: '58100110',
-    nutrients: { protein: 5.66, carbs: 17.65, fat: 6.92, sugars: 1.64 },
-    ghge: 4.8 // Composite dishes
+    fndds_code: '11459990',
+    nutrients: { protein: 3.0, carbs: 21.6, fat: 3.6, sugars: 19.92 },
+    micros: { iron: 0.14, calcium: 106.0, potassium: 156.0, vitC: 0.5 },
+    ghge: 4.8 // Frozen yogurt, NFS
   },
   'Chicken nuggets': {
-    fndds_code: '24126110',
-    nutrients: { protein: 14.61, carbs: 16.09, fat: 19.34, sugars: 0.41 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '24198736',
+    nutrients: { protein: 13.36, carbs: 17.88, fat: 19.23, sugars: 0.8 },
+    micros: { iron: 0.94, calcium: 21.0, potassium: 205.0, vitC: 0.0 },
+    ghge: 17.1 // Chicken nuggets, from frozen
   },
   'Hot dogs': {
-    fndds_code: '21501000',
-    nutrients: { protein: 11.83, carbs: 2.76, fat: 28.53, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '11512005',
+    nutrients: { protein: 1.82, carbs: 13.9, fat: 1.04, sugars: 12.0 },
+    micros: { iron: 0.19, calcium: 54.0, potassium: 201.0, vitC: 0.0 },
+    ghge: 17.1 // Hot chocolate / cocoa, NFS
   },
   'Chicken patties': {
-    fndds_code: '24125210',
-    nutrients: { protein: 13.9, carbs: 14.34, fat: 16.73, sugars: 0.32 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '28140720',
+    nutrients: { protein: 10.68, carbs: 16.0, fat: 8.1, sugars: 1.0 },
+    micros: { iron: 1.13, calcium: 17.0, potassium: 231.0, vitC: 3.1 },
+    ghge: 17.1 // Chicken patty, or nuggets, boneless, breaded, potatoes, vegetable, frozen meal
   },
   'Fish sticks': {
-    fndds_code: '26100200',
-    nutrients: { protein: 12.33, carbs: 21.0, fat: 10.3, sugars: 0.49 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '26100100',
+    nutrients: { protein: 17.22, carbs: 0.0, fat: 2.34, sugars: 0.0 },
+    micros: { iron: 0.44, calcium: 12.0, potassium: 387.0, vitC: 1.3 },
+    ghge: 17.1 // Fish, raw
   },
   'Deli meat slices': {
-    fndds_code: '21501400',
-    nutrients: { protein: 11.46, carbs: 3.73, fat: 27.52, sugars: 0.0 },
-    ghge: 17.1 // Meat and meat products
+    fndds_code: '25230210',
+    nutrients: { protein: 16.7, carbs: 0.27, fat: 3.73, sugars: 0.0 },
+    micros: { iron: 0.99, calcium: 7.0, potassium: 341.0, vitC: 22.0 },
+    ghge: 17.1 // Ham, prepackaged or deli, luncheon meat
   },
-  // Fallback for untracked items
-  'default': { fndds_code: '00000000', nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 }, ghge: 2.0 }
+  'default': { fndds_code: '00000000', nutrients: { protein: 0, carbs: 0, fat: 0, sugars: 0 }, micros: { iron: 0, calcium: 0, potassium: 0, vitC: 0 }, ghge: 2.0 }
 };
 
 const portionMultipliers = {
@@ -491,11 +584,39 @@ const portionMultipliers = {
   'large': 4
 };
 
+// --- NOVA PROCESSING CLASSIFICATION (1-4) ---
+// 1 = Unprocessed, 2 = Culinary Ingredients, 3 = Processed, 4 = Ultra-Processed
+const novaMapping = {
+  'Apple': 1, 'Banana': 1, 'Orange': 1, 'Mango': 1, 'Grapes': 1,
+  'Spinach': 1, 'Broccoli': 1, 'Carrot': 1, 'Tomato': 1, 'Bell pepper': 1,
+  'Brown rice': 1, 'Oats': 1, 'Quinoa': 1, 'Barley': 1, 'Whole wheat': 1,
+  'Black beans': 1, 'Lentils': 1, 'Chickpeas': 1, 'Kidney beans': 1, 'Split peas': 1,
+  'Beef steak': 1, 'Pork loin': 1, 'Lamb chop': 1, 'Beef roast': 1, 'Pork tenderloin': 1,
+  'Chicken breast': 1, 'Chicken thigh': 1, 'Chicken drumstick': 1, 'Chicken wings': 1, 'Whole chicken': 1,
+  'Plain yogurt': 1, 'Kefir': 1, 'Pasta': 1, 
+  
+  'Salt': 2, 'Black pepper': 2, 'Garlic powder': 2, 'Onion powder': 2, 'Paprika': 2,
+  'Vinegar': 2, 'White sugar': 2, 'Brown sugar': 2, 'Honey': 2, 'Maple syrup': 2, 'Corn syrup': 2,
+  'Cornstarch': 2, 'Gelatin': 2, 'Pectin': 2, 'Agar-agar': 2, 
+  'Baking powder': 2, 'Baking soda': 2, 'Yeast': 2, 'Cream of tartar': 2, "Ammonium bicarbonate (baker's ammonia)": 2,
+
+  'Soy sauce': 3, 'Mustard': 3, 'Hot sauce': 3, 'Cheese': 3, 'Cottage cheese': 3, 'Sweetened condensed milk': 3,
+  'Traditional bread': 3, 'Salted popcorn': 3, 'Tortillas': 3,
+  'Canned vegetables': 3, 'Canned fruits in syrup': 3, 'Pickles (American)': 3, 'Tomato sauce/paste': 3, 'Dried fruits with added sugar': 3,
+  'Canned tuna': 3, 'Canned salmon': 3, 'Salted fish': 3, 'Smoked fish': 3, 'Cured ham': 3,
+
+  'Ketchup': 4, 'Modified food starch': 4, 'Plain crackers': 4,
+  'Coca-Cola® or Pepsi®': 4, 'Mountain Dew®': 4, 'Sweetened iced tea': 4, 'Sports drinks': 4, 'Sweetened fruit drinks/fruit punch': 4,
+  'Potato chips': 4, 'Chocolate bars': 4, 'Candy': 4, 'Packaged cookies': 4, 'Cheese-flavored crackers': 4,
+  'Frozen pizza': 4, 'Instant noodles (Ramen)': 4, 'Microwaveable frozen dinners': 4, 'Canned pasta meals': 4, 'Frozen macaroni and cheese': 4,
+  'Chicken nuggets': 4, 'Hot dogs': 4, 'Chicken patties': 4, 'Fish sticks': 4, 'Deli meat slices': 4
+};
+
 // ... [KEEP YOUR EXISTING foodCategories AND imageMapping CONSTANTS HERE EXACTLY AS THEY WERE] ...
 const foodCategories = [
   { id: 'g1_fruits', group: 'Group 1', name: 'Fruits', options: ['Apple', 'Banana', 'Orange', 'Mango', 'Grapes'] },
   { id: 'g1_vegetables', group: 'Group 1', name: 'Vegetables', options: ['Spinach', 'Broccoli', 'Carrot', 'Tomato', 'Bell pepper'] },
-  { id: 'g1_grains', group: 'Group 1', name: 'Whole Grains', options: ['Brown rice', 'Oats', 'Quinoa', 'Barley', 'Whole wheat berries'] },
+  { id: 'g1_grains', group: 'Group 1', name: 'Whole Grains', options: ['Brown rice', 'Oats', 'Quinoa', 'Barley', 'Whole wheat'] },
   { id: 'g1_legumes', group: 'Group 1', name: 'Legumes', options: ['Black beans', 'Lentils', 'Chickpeas', 'Kidney beans', 'Split peas'] },
   { id: 'g1_meat', group: 'Group 1', name: 'Fresh Cuts of Meat', options: ['Beef steak', 'Pork loin', 'Lamb chop', 'Beef roast', 'Pork tenderloin'] },
   { id: 'g1_chicken', group: 'Group 1', name: 'Fresh Chicken Products', options: ['Chicken breast', 'Chicken thigh', 'Chicken drumstick', 'Chicken wings', 'Whole chicken'] },
@@ -520,7 +641,7 @@ const foodCategories = [
 const imageMapping = {
   'Apple': 'apple.png', 'Banana': 'banana.png', 'Orange': 'orange.png', 'Mango': 'mango.png', 'Grapes': 'grapes.png',
   'Spinach': 'spinach.png', 'Broccoli': 'broccoli.png', 'Carrot': 'carrot.png', 'Tomato': 'tomato.png', 'Bell pepper': 'bell_pepper.png',
-  'Brown rice': 'brown_rice.png', 'Oats': 'oats.png', 'Quinoa': 'quinoa.png', 'Barley': 'barley.png', 'Whole wheat berries': 'whole_wheat _berries.png',
+  'Brown rice': 'brown_rice.png', 'Oats': 'oats.png', 'Quinoa': 'quinoa.png', 'Barley': 'barley.png', 'Whole wheat': 'whole_wheat.png',
   'Black beans': 'black_beans.png', 'Lentils': 'lentils.png', 'Chickpeas': 'chickpeas.png', 'Kidney beans': 'kidney_beans.png', 'Split peas': 'split_peas.png',
   'Beef steak': 'beef_steak.png', 'Pork loin': 'pork_loin.png', 'Lamb chop': 'lamb_chop.png', 'Beef roast': 'beef_roast.png', 'Pork tenderloin': 'pork_tenderloin.png',
   'Chicken breast': 'chicken_breast.png', 'Chicken thigh': 'chicken_thigh.png', 'Chicken drumstick': 'chicken_drumstick.png', 'Chicken wings': 'chicken_wings.png', 'Whole chicken': 'whole_chicken.png',
@@ -598,43 +719,66 @@ export default function App() {
   };
 
   // --- NEW DASHBOARD CALCULATION ---
-  const calculateDashboardScores = () => {
+const calculateDashboardScores = () => {
     let totalProtein = 0;
     let totalCarbs = 0;
     let totalFat = 0;
     let totalSugars = 0;
+    
+    // New Micronutrient accumulators
+    let totalIron = 0;
+    let totalCalcium = 0;
+    let totalPotassium = 0;
+    let totalVitC = 0;
+
     let totalCarbonFootprint = 0;
     let totalItems = 0;
+    let totalNovaScore = 0;
 
     Object.values(responses).forEach(categoryData => {
       if (categoryData.consumed && categoryData.items.length > 0) {
         categoryData.items.forEach(item => {
-          // Look up the specific food or use the default
           const foodData = foodDatabase[item.food] || foodDatabase['default'];
           const multiplier = portionMultipliers[item.portion];
           
+          // Macros & Emissions
           totalProtein += (foodData.nutrients.protein * multiplier);
           totalCarbs += (foodData.nutrients.carbs * multiplier);
           totalFat += (foodData.nutrients.fat * multiplier);
           totalSugars += (foodData.nutrients.sugars * multiplier);
-          
           totalCarbonFootprint += (foodData.ghge * multiplier);
+
+          // Micronutrients
+          totalIron += (foodData.micros.iron * multiplier);
+          totalCalcium += (foodData.micros.calcium * multiplier);
+          totalPotassium += (foodData.micros.potassium * multiplier);
+          totalVitC += (foodData.micros.vitC * multiplier);
+          
+          const itemNovaGroup = novaMapping[item.food] || 4;
+          totalNovaScore += (itemNovaGroup * multiplier);
           totalItems += multiplier;
         });
       }
     });
 
-    // Calculate a generic health score (placeholder logic)
-    const avgHealth = totalItems > 0 ? 75 : 0; // Update this with your logic later
+    const averageNova = totalItems > 0 ? (totalNovaScore / totalItems) : 4;
+    let finalHealthScore = Math.max(0, Math.round(100 - ((averageNova - 1) * 33.33)));
 
     setDashboardData({
-      healthScore: avgHealth,
+      healthScore: finalHealthScore,
       carbonFootprint: totalCarbonFootprint.toFixed(1),
       nutrition: [
         { name: 'Protein', value: Number(totalProtein.toFixed(1)) },
         { name: 'Carbs', value: Number(totalCarbs.toFixed(1)) },
         { name: 'Fat', value: Number(totalFat.toFixed(1)) },
         { name: 'Sugars', value: Number(totalSugars.toFixed(1)) }
+      ],
+      // NEW: Array specifically structured for the Bar Chart
+      microsArray: [
+        { name: 'Iron', amount: Number(totalIron.toFixed(1)), unit: 'mg' },
+        { name: 'Calcium', amount: Number(totalCalcium.toFixed(1)), unit: 'mg' },
+        { name: 'Potassium', amount: Number(totalPotassium.toFixed(1)), unit: 'mg' },
+        { name: 'Vit C', amount: Number(totalVitC.toFixed(1)), unit: 'mg' }
       ]
     });
   };
@@ -767,6 +911,23 @@ export default function App() {
                     </ResponsiveContainer>
                   </div>
                 </div>
+
+                {/* TILE 4: MICRONUTRIENT BAR CHART */}
+<div className="dashboard-card micro-card">
+  <h3>Micronutrient Breakdown</h3>
+  <p className="score-desc" style={{marginBottom: '0'}}>Total intake in milligrams (mg).</p>
+  <div style={{ width: '100%', height: 220 }}>
+    <ResponsiveContainer>
+      <BarChart data={dashboardData.microsArray} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+        <YAxis tick={{ fontSize: 12 }} />
+        <Tooltip formatter={(value, name, props) => [`${value} ${props.payload.unit}`, 'Amount']} />
+        <Bar dataKey="amount" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
+</div>
 
               </div>
               
